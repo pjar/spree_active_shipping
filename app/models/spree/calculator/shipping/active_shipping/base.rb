@@ -27,6 +27,11 @@ module Spree
         end
 
         def compute_package(package)
+          # helps the available? method determine
+          # if rates are available for this service
+          # before calling the carrier for rates
+          is_package_shippable? package
+
           order = package.order
           stock_location = package.stock_location
 
@@ -37,7 +42,7 @@ module Spree
 
           return nil if rates_result.kind_of?(Spree::ShippingError)
           return nil if rates_result.empty?
-          rate = rates_result[self.class.description]
+          rate = rates_result[rate_result_key]
 
           return nil unless rate
           rate = rate.to_f + (Spree::ActiveShipping::Config[:handling_fee].to_f || 0.0)
@@ -71,6 +76,11 @@ module Spree
         # weight limit in ounces or zero (if there is no limit)
         def max_weight_for_country(country)
           0
+        end
+
+        # Identfies the calculator returned from the carrier
+        def rate_result_key
+          self.class.description
         end
 
         private
@@ -246,13 +256,14 @@ module Spree
         def get_max_weight(package)
           order = package.order
           max_weight = max_weight_for_country(order.ship_address.country)
-          max_weight_per_package = Spree::ActiveShipping::Config[:max_weight_per_package] * Spree::ActiveShipping::Config[:unit_multiplier]
-          if max_weight == 0 and max_weight_per_package > 0
-            max_weight = max_weight_per_package
-          elsif max_weight > 0 and max_weight_per_package < max_weight and max_weight_per_package > 0
-            max_weight = max_weight_per_package
+          unless max_weight.nil?
+            max_weight_per_package = Spree::ActiveShipping::Config[:max_weight_per_package] * Spree::ActiveShipping::Config[:unit_multiplier]
+            if max_weight == 0 and max_weight_per_package > 0
+              max_weight = max_weight_per_package
+            elsif max_weight > 0 and max_weight_per_package < max_weight and max_weight_per_package > 0
+              max_weight = max_weight_per_package
+            end
           end
-
           max_weight
         end
 
@@ -260,8 +271,9 @@ module Spree
           stock_location = package.stock_location.nil? ? "" : "#{package.stock_location.id}-"
           order = package.order
           ship_address = package.order.ship_address
+          max_weight = get_max_weight(package)
           contents_hash = Digest::MD5.hexdigest(package.contents.map {|content_item| content_item.variant.id.to_s + "_" + content_item.quantity.to_s }.join("|"))
-          @cache_key = "#{stock_location}#{carrier.name}-#{order.number}-#{ship_address.country.iso}-#{fetch_best_state_from_address(ship_address)}-#{ship_address.city}-#{ship_address.zipcode}-#{contents_hash}-#{I18n.locale}".gsub(" ","")
+          @cache_key = "#{stock_location}#{carrier.name}-#{max_weight}-#{order.number}-#{ship_address.country.iso}-#{fetch_best_state_from_address(ship_address)}-#{ship_address.city}-#{ship_address.zipcode}-#{contents_hash}-#{I18n.locale}".gsub(" ","")
         end
 
         def fetch_best_state_from_address address
