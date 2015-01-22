@@ -99,6 +99,56 @@ module Spree
              xml_request.to_s
           end
 
+
+
+
+          def create_shipment(origin, destination, packages, options = {})
+            logger = Logger.new(STDOUT)
+            options = @options.merge(options)
+            packages = Array(packages)
+            access_request = build_access_request
+
+            begin
+
+              # STEP 1: Confirm.  Validation step, important for verifying price.
+              confirm_request = build_shipment_request(origin, destination, packages, options)
+              logger.debug(confirm_request) if logger
+
+              confirm_response = commit(:ship_confirm, save_request(access_request + confirm_request), (options[:test] || false))
+              logger.debug(confirm_response) if logger
+
+              # ... now, get the digest, it's needed to get the label.  In theory,
+              # one could make decisions based on the price or some such to avoid
+              # surprises.  This also has *no* error handling yet.
+              xml = parse_ship_confirm(confirm_response)
+              success = response_success?(xml)
+              message = response_message(xml)
+              digest  = response_digest(xml)
+              raise message unless success
+
+              # STEP 2: Accept. Use shipment digest in first response to get the actual label.
+              accept_request = build_accept_request(digest, options)
+              logger.debug(accept_request) if logger
+
+              accept_response = commit(:ship_accept, save_request(access_request + accept_request), (options[:test] || false))
+              logger.debug(accept_response) if logger
+
+              # ...finally, build a map from the response that contains
+              # the label data and tracking information.
+              parse_ship_accept(accept_response)
+
+            rescue RuntimeError => e
+              raise "Could not obtain shipping label. #{e.message}."
+
+            end
+          end
+
+
+
+
+          def dupa
+            'dupa'
+          end
           def build_time_in_transit_request(origin, destination, packages, options={})
             packages = Array(packages)
             xml_request = XmlNode.new('TimeInTransitRequest') do |root_node|
@@ -158,9 +208,15 @@ module Spree
               location_node << XmlNode.new('FaxNumber', location.fax.gsub(/[^\d]/,'')) unless location.fax.blank?
 
               if name == 'Shipper' and (origin_account = @options[:origin_account].presence || options[:origin_account].presence)
+                origin_name = @options[:origin_name].presence || options[:origin_account].presence
+                location_node << XmlNode.new('Name', origin_name)
                 location_node << XmlNode.new('ShipperNumber', origin_account)
               elsif name == 'ShipTo' and (destination_account = @options[:destination_account] || options[:destination_account])
                 location_node << XmlNode.new('ShipperAssignedIdentificationNumber', destination_account)
+              end
+
+              if name == 'ShipTo'
+                location_node << XmlNode.new('CompanyName',  location.name)
               end
 
               location_node << XmlNode.new('Address') do |address|

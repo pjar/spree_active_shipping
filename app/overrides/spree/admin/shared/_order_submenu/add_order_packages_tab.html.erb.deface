@@ -1,0 +1,7 @@
+<!-- insert_bottom "[data-hook='admin_order_tabs']" -->
+
+<% if can? :update, @order.order_packages.build %>
+  <li<%== ' class=\"active\"' if current == 'Order Packages' %>>
+    <%= link_to_with_icon 'cube', Spree.t(:order_packages), admin_order_order_packages_url(@order) %>
+  </li>
+<% end %>

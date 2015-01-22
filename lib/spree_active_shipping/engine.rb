@@ -20,8 +20,6 @@ module SpreeActiveShippingExtension
       #http://github.com/BDQ/active_shipping/commit/2f2560d53aa7264383e5a35deb7264db60eb405a
       ActiveMerchant::Shipping::UPS.send(:include, Spree::ActiveShipping::UpsOverride)
 
-      # Fix Canada Post "Ready to ship" package
-      ActiveMerchant::Shipping::CanadaPost.send(:include, Spree::ActiveShipping::CanadaPostOverride)
     end
 
     config.autoload_paths += %W(#{config.root}/lib)
@@ -42,9 +40,9 @@ module SpreeActiveShippingExtension
         # sets the manifests / assets to be precompiled, even when initialize_on_precompile is false
     initializer "spree.assets.precompile", :group => :all do |app|
       app.config.assets.precompile += %w[
-        admin/product_packages/new.js
-        admin/product_packages/edit.js
-        admin/product_packages/index.js
+        admin/order_packages/new.js
+        admin/order_packages/edit.js
+        admin/order_packages/index.js
       ]
     end
   end

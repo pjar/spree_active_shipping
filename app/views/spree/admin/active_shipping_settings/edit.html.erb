@@ -21,48 +21,6 @@
             <% end %>
           </fieldset>
         </div>
-        <div class="omega six columns">
-          <fieldset class="currency no-border-bottom">
-            <legend align="center"><%= Spree.t(:fedex_settings)%></legend>
-            <% @preferences_FedEx.each do |key|
-                type = @config.preference_type(key) %>
-                <div class="field">
-                  <%= label_tag(key, Spree.t(key) + ': ') + tag(:br) if type != :boolean %>
-                  <%= preference_field_tag(key, @config[key], :type => type) %>
-                  <%= label_tag(key, Spree.t(key)) + tag(:br) if type == :boolean %>
-                </div>
-            <% end %>
-          </fieldset>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="alpha six columns">
-          <fieldset class="security no-border-bottom">
-            <legend align="center"><%= Spree.t(:usps_settings)%></legend>
-            <% @preferences_USPS.each do |key|
-                type = @config.preference_type(key) %>
-                <div class="field">
-                  <%= label_tag(key, Spree.t(key) + ': ') + tag(:br) if type != :boolean %>
-                  <%= preference_field_tag(key, @config[key], :type => type) %>
-                  <%= label_tag(key, Spree.t(key)) + tag(:br) if type == :boolean %>
-                </div>
-            <% end %>
-          </fieldset>
-        </div>
-        <div class="omega six columns">
-          <fieldset class="currency no-border-bottom">
-            <legend align="center"><%= Spree.t(:canada_post_settings)%></legend>
-            <% @preferences_CanadaPost.each do |key|
-                type = @config.preference_type(key) %>
-                <div class="field">
-                  <%= label_tag(key, Spree.t(key) + ': ') + tag(:br) if type != :boolean %>
-                  <%= preference_field_tag(key, @config[key], :type => type) %>
-                  <%= label_tag(key, Spree.t(key)) + tag(:br) if type == :boolean %>
-                </div>
-            <% end %>
-          </fieldset>
-        </div>
       </div>
 
       <div class="row">
