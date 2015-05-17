@@ -1,0 +1,21 @@
+- aGet = (fieldName) =>
+  - switch fieldName
+    - when 'firstname'  then 'Inpost'
+    - when 'country_id' then '179'
+    - when 'phone'      then '777-222-111'
+    - else @inpostMachine[fieldName] 
+
+- addressFields = 
+  - firstname:  'firstname'
+  - lastname:   'name'
+  - address1:   'street'
+  - address2:   'locationdescription'
+  - city:       'town'
+  - country_id: 'country_id'
+  - state_name: 'province'
+  - zipcode:    'postcode'
+  - phone:      'phone'
+
+- for own key, value of addressFields
+  input id="order_ship_address_attributes_#{key}" name="order[ship_address_attributes][#{key}]" type="hidden" value="#{aGet(value)}"
+

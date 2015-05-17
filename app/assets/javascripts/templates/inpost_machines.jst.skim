@@ -1,0 +1,5 @@
+select id="inpost-machines-select"
+  - for machine in @inpostData
+    option value="#{machine['name']}" #{machine['street']} #{machine['buildingnumber']} - #{machine['locationdescription']}
+
+

@@ -1,0 +1,24 @@
+- if @inpostData
+  - data = @inpostData
+
+  div id="inpost-cities"
+
+    select id="inpost-cities-select"
+      option value='' Wybierz Paczkomat
+      - for city in @inpostData['cities']
+        option value="#{city}" #{city}    
+
+  div id="inpost-machines"
+  - $('div[data-hook="shipping-method-options"]').on 'change', '#inpost-machines-select', -> 
+    - selectValue = $(@).val()
+    - $('#inpost-form-fields').html(JST['templates/inpost_address_form']({inpostMachine: getMachineData(data, selectValue)}))
+
+  - $('div[data-hook="shipping-method-options"]').on 'change', 'select#inpost-cities-select', ->
+    - $('#inpost-machines').html(JST['templates/inpost_machines']({inpostData: data['machines'][$(@).val()]}))
+    - $('#inpost-machines-select').trigger 'change'
+
+  div id="inpost-form-fields"
+
+- getMachineData = (data, machineName) ->
+  - (m for m in data['machines'][$('#inpost-cities-select').val()] when m.name is machineName)[0]
+

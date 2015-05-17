@@ -1,0 +1,20 @@
+div data-hook='shipping-method-options'
+
+== javascript_include_tag('templates/inpost_cities')
+== javascript_include_tag('templates/inpost_machines')
+== javascript_include_tag('templates/inpost_address_form')
+
+coffee:
+  $ ->
+    $('ul.shipping-methods input').change updateOptions
+    $('ul.shipping-methods input[checked="checked"]').trigger 'change'
+
+
+  updateOptions = ->
+    $.ajax
+      url: Spree.pathFor("shipping_rates/#{@value}/shipping_method_options")
+      dataType: 'json'
+      error: ''
+      success: (data) ->
+        $('div[data-hook="shipping-method-options"]').html(JST['templates/inpost_cities']({inpostData: data}))
+

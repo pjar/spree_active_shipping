@@ -143,12 +143,6 @@ module Spree
             end
           end
 
-
-
-
-          def dupa
-            'dupa'
-          end
           def build_time_in_transit_request(origin, destination, packages, options={})
             packages = Array(packages)
             xml_request = XmlNode.new('TimeInTransitRequest') do |root_node|
@@ -216,7 +210,9 @@ module Spree
               end
 
               if name == 'ShipTo'
-                location_node << XmlNode.new('CompanyName',  location.name)
+                name_attr = location.name
+                name_attr = "#{location.company_name}  #{location.name}" if location.commercial?
+                location_node << XmlNode.new('CompanyName',  name_attr)
               end
 
               location_node << XmlNode.new('Address') do |address|
