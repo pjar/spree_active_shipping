@@ -1,8 +1,7 @@
 Active Shipping
 ===============
 
-[![Build
-Status](https://secure.travis-ci.org/spree/spree_active_shipping.png)](http://travis-ci.org/spree/spree_active_shipping)
+[![Build Status](https://travis-ci.org/spree-contrib/spree_active_shipping.svg?branch=2-4-stable)](https://travis-ci.org/spree-contrib/spree_active_shipping)
 
 This is a Spree extension that wraps the popular [active_shipping](http://github.com/Shopify/active_shipping/tree/master) plugin.
 
@@ -57,6 +56,9 @@ Spree::ActiveShipping::Config[:ups_password]
 Spree::ActiveShipping::Config[:ups_key]
 Spree::ActiveShipping::Config[:usps_login]
 ```
+
+**NOTE:** When setting up FedEx credentials, `:fedex_login` is the "Meter Number" that FedEx supplies you with.
+
 It is important to note how this wrapper matches the calculators to the services available from the carrier API's, by default the base calculator matches the service name to the calculator class and returns the rate, this magic happens as follows:
 
 1. inside the calculator class
